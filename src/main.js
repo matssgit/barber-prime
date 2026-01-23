@@ -9,3 +9,7 @@ import "./styles/form.css";
 import "./styles/schedule.css";
 
 import dayjs from "dayjs";
+
+// JS
+import "./modules/form/submit.js";
+import "./modules/load.js";
