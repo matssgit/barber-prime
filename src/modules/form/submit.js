@@ -1,48 +1,58 @@
 import dayjs from "dayjs";
-import { scheduleNew } from "../../services/schedule-new";
+import { scheduleNew } from "../../services/schedule-new.js";
+import { schedulesDay } from "../schedules/load.js";
 
 const form = document.querySelector("form");
 const clientName = document.getElementById("client");
-const selectedDate = document.querySelector("#date");
+const selectedDate = document.getElementById("date");
 
-// Data atual para o input date
+// Data atual para formatar o input
 const inputToday = dayjs(new Date()).format("YYYY-MM-DD");
 
-// Carrega a data atual e define a data mínima como sendo a data atual.
+// Carrega a data atual e define a data mínima como a atual
 selectedDate.value = inputToday;
 selectedDate.min = inputToday;
 
 form.onsubmit = async (event) => {
-   // Previne o comportamento padrão de atualizar a página ao submeter o formulário
+   // Previne o comportamento padrão de recarregar a página
    event.preventDefault();
 
    try {
-      // Recuperando o nome do cliente.
-      const name = clientName.value.trim();
+      // Recuperando o nome do cliente
+      const name = clientName.value.trim(); // remove espaços a mais
 
       if (!name) {
-         return alert("Por favor, informe o nome do cliente!");
+         return alert("Informe o nome do cliente!");
       }
 
-      // Recupera o horário selecionado.
+      // Recupera o horário selecionado
       const hourSelected = document.querySelector(".hour-selected");
 
-      // Recupera o horário selecionado.
       if (!hourSelected) {
-         return alert("Por favor, selecione um horário para o agendamento!");
+         return alert("Selecione um horário.");
       }
 
-      // Recupera somente a hora.
+      // Recuperar somente a hora
       const [hour] = hourSelected.innerText.split(":");
 
-      // Insere a hora na data
+      // Inserir a hora na data
       const when = dayjs(selectedDate.value).add(hour, "hour");
 
       // Gera um ID
-      const id = new Date().getTime();
+      const id = String(new Date().getTime());
 
-      await scheduleNew({ id, name, when: when.format("DD/MM/YYYY") });
-      console.log({ id, name, when: when.format("DD/MM/YYYY") });
+      // Faz o agendamento.
+      await scheduleNew({
+         id,
+         name,
+         when,
+      });
+
+      // Recarrega os agendamentos.
+      await schedulesDay();
+
+      // Limpa o input de nome do cliente.
+      clientName.value = "";
    } catch (error) {
       alert("Não foi possível realizar o agendamento.");
       console.log(error);
